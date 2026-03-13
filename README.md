@@ -90,49 +90,58 @@ Maneja la conversión de divisas.
 ---
 
 
-# B SIPMG - Sistema de Información de la Policía Municipal de Guaicaipuro
+# B. SIPMG - Sistema de Información de la Policía Municipal de Guaicaipuro
+
+SIPMG es una solución integral para la gestión y seguimiento de información de detenidos. El proyecto ha evolucionado de una arquitectura monolítica a una estructura de API modernizada.
+
+## 1. Evolución del Proyecto
+
+### Versión 1: Sistema Legado (PHP)
+- **Stack**: PHP, MySQL / MariaDB, Materialize CSS, jQuery.
+- **Enfoque**: Aplicación web monolítica centrada en formularios directos y gestión básica de CRUD.
+- **Características**: Autenticación simple, generación de reportes PDF con Dompdf, y manejo de historiales en tablas relacionales básicas.
+
+### Versión 2: SIPMG API Modernizada (Python Flask)
+- **Stack**: Python (Flask), PostgreSQL, SQLAlchemy.
+- **Enfoque**: API RESTful diseñada para escalabilidad, con una base de datos altamente normalizada y soporte para auditoría.
+- **Mejoras Clave**:
+    - **Normalización Avanzada**: Separación de entidades geográficas (`estados`, `municipios`) y direcciones reutilizables.
+    - **Integridad de Datos**: Uso de restricciones `UNIQUE` y llaves foráneas estrictas en PostgreSQL.
+    - **Gestión de Auditoría**: Implementación de campos `oculto` (soft delete) para preservar la integridad histórica.
+    - **Seguridad**: Sistema de roles dinámico y contraseñas hasheadas.
+
+## 2. Lógica de la Base de Datos (v2)
+
+El esquema de la versión 2 está diseñado para capturar la complejidad de los procedimientos policiales, permitiendo múltiples detenciones por ciudadano y un seguimiento detallado de cada evento.
+
+### Diagrama de Entidad-Relación (V2)
+```mermaid
+erDiagram
+    DETENIDOS ||--o{ DETALLE_DETENIDOS : "posee datos filiatorios"
+    DETENIDOS ||--o{ DETENCIONES : "tiene historial de"
+    DETENCIONES ||--o{ DETALLE_DETENCIONES : "detalle del hecho"
+    DETENCIONES ||--o{ EGRESO_DETENCIONES : "proceso de salida"
+    DETENCIONES }o--|| DELITOS : "clasificado como"
+    DETENCIONES }o--|| ORGANISMOS : "remitido por"
+    
+    DIRECCIONES ||--o{ DETALLE_DETENIDOS : "residencia"
+    DIRECCIONES ||--o{ DETALLE_DETENCIONES : "lugar del suceso"
+    DIRECCIONES ||--o{ ORGANISMOS : "ubicación sede"
+    
+    ESTADOS ||--o{ MUNICIPIOS : "división política"
+    USUARIOS }o--|| ROLES : "permisos"
+    EGRESO_DETENCIONES }o--|| TIPO_EGRESOS : "causa de egreso"
+```
+
+### 3. Visualización del Esquema (V2)
+A continuación se adjunta la arquitectura visual generada desde la herramienta de modelado:
+
+![SIPMG API V2 Schema](sipmg_api_v2_schema.png)
+
+## 4. Instalación (Versión General)
+1.  **V1 (PHP)**: Clonar en `htdocs`, configurar `conexion_db.php` e importar `database_schema.sql`.
+2.  **V2 (Flask)**: Configurar entorno virtual, instalar `requirements.txt`, configurar `DATABASE_URL` e importar `sipmg_api_v2_schema.sql` en PostgreSQL.
+
 ---
-SIPMG es una aplicación web desarrollada para la gestión y seguimiento de la información de los detenidos en la Policía Municipal de Guaicaipuro. El sistema centraliza los datos personales, historiales de detenciones, y procesos de egreso, proporcionando una herramienta robusta para el control y la consulta de información sensible.
-
-## Características Principales
--   **Gestión de Usuarios:** Sistema de autenticación con roles (Administrador, Consultor) para controlar el acceso a las diferentes funcionalidades.
--   **Módulo de Detenidos:**
-    -   Registro, consulta, edición y eliminación de datos filiatorios de los detenidos.
-    -   Asociación de fotografía y dirección de residencia.
-    -   Validación para evitar duplicidad de cédulas.
--   **Módulo de Detenciones:**
-    -   Registro de nuevas detenciones, asociando un detenido, delito, organismo y lugar de los hechos.
-    -   Capacidad para registrar múltiples detenciones de forma masiva.
-    -   Consulta y edición del historial de detenciones de un individuo.
--   **Módulo de Egresos:**
-    -   Registro de egresos de detenidos, especificando el tipo y la descripción.
-    -   Actualización automática del estatus del detenido.
--   **Búsqueda y Filtros:** Potentes herramientas de búsqueda para localizar rápidamente detenidos, detenciones y egresos por número de cédula o expediente.
--   **Generación de Reportes:** Creación de reportes en formato PDF con el historial completo del detenido, incluyendo sus datos personales, detenciones y egresos.
--   **Administración de Datos Maestros:** Módulos para gestionar los catálogos de Delitos, Organismos y Tipos de Egreso.
-
-## Stack Tecnológico
--   **Frontend:** HTML5, CSS3, JavaScript, jQuery, Materialize CSS
--   **Backend:** PHP
--   **Base de Datos:** MySQL / MariaDB
--   **Generación de PDF:** Dompdf
-
-## Instalación
-1.  Configura un servidor web local (ej. XAMPP, WAMP, LAMP) o remoto en cloud o servidor on-premise.
-2.  Clona este repositorio en el directorio `htdocs` o `www` del servidor.
-3.  Importa el esquema de la base de datos (`database_schema.sql`) en tu gestor de base de datos (ej. phpMyAdmin).
-4.  Configura las credenciales de la base de datos en el archivo `php/conexion_db.php`.
-5.  Accede a la aplicación a través de tu navegador.
-
-## Uso
-El sistema cuenta con usuarios predeterminados para demostración:
--   **Usuario Administrador:**
-    -   **Usuario:** `admin`
-    -   **Contraseña:** `admin`
--   **Usuario Consultor:**
-    -   **Usuario:** `consultor`
-    -   **Contraseña:** `consultor`
----
-
 
 *Estos esquemas forman parte del portafolio de SQL de Daniel José Pacheco Rodríguez.*
